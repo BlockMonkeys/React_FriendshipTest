@@ -1,25 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, Switch } from "react-router-dom";
+import { withRouter } from "react-router";
+import { connect } from "react-redux";
+import Start from "./Start";
+import Quiz from "./Quiz";
+import Result from "./Result";
+import Spinner from "./Spinner";
+import { loadOFF, loadON } from "./redux/modules/loaded";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+
+const mapStateTopProps = (state) => ({
+    quiz: state.quiz,
+    is_loaded: state.loaded.is_loaded
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  loadON: () => {
+    dispatch(loadON());
+  },
+  loadOFF: () => {
+    dispatch(loadOFF());
+  }
+});
+
+class App extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={};
+  }
+  
+  componentDidMount(){
+    this.props.loadON();
+    console.log('COMPONENT DID MOUNTED !');
+  }
+
+  render(){
+    return(
+      <div className="App">
+        {!this.props.is_loaded ? (
+        <Spinner />
+        ):(
+          <React.Fragment>
+            <Switch>
+              <Route exact path="/" component={Start} />
+              <Route path="/quiz" component={Quiz} />
+              <Route path="/result" component={Result} />
+            </Switch>
+          </React.Fragment>
+        )}
+      </div>
+    )
+  }
 }
 
-export default App;
+export default connect(mapStateTopProps, mapDispatchToProps)(withRouter(App));
